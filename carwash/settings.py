@@ -19,7 +19,11 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-carwash-2024-change-t
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+# Allow all hosts in production (Railway), restrict in development
+if 'RAILWAY_ENVIRONMENT' in os.environ:
+    ALLOWED_HOSTS = ['*']
+else:
+    ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
 # CSRF settings for Railway
 CSRF_TRUSTED_ORIGINS = os.environ.get(
