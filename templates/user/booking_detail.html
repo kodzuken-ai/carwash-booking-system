@@ -3,7 +3,22 @@
 {% block title %}Booking #{{ booking.id }} - Car Wash System{% endblock %}
 
 {% block navigation %}
+{% if user.is_staff or user.is_superuser %}
+<!-- Minimal Admin Navigation -->
+<div style="background: #ffffff; border-bottom: 1px solid #e5e7eb; padding: 1rem 2rem;">
+    <div style="max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center;">
+        <div style="font-size: 1.125rem; font-weight: 600; color: #111827;">Car Wash System</div>
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <span style="color: #6b7280; font-size: 0.875rem;">{{ user.username }}</span>
+            <a href="{% url 'logout' %}" style="color: #6b7280; text-decoration: none;" title="Logout">
+                <i class="fas fa-sign-out-alt"></i>
+            </a>
+        </div>
+    </div>
+</div>
+{% else %}
 {{ block.super }}
+{% endif %}
 {% endblock %}
 
 {% block content %}
