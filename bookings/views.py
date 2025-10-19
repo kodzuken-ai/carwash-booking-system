@@ -91,8 +91,11 @@ def get_weather_data(city=None):
 
 # Public Views
 def home(request):
-    """Homepage view"""
-    # Weather removed from landing page
+    """Homepage view - redirects logged-in users to their dashboard"""
+    if request.user.is_authenticated:
+        if is_admin(request.user):
+            return redirect('admin_dashboard')
+        return redirect('user_dashboard')
     return render(request, 'bookings/home.html')
 
 
