@@ -96,7 +96,15 @@ def home(request):
         if is_admin(request.user):
             return redirect('admin_dashboard')
         return redirect('user_dashboard')
-    return render(request, 'bookings/home.html')
+    
+    # Get featured services for landing page
+    from .models import Service
+    featured_services = Service.objects.filter(category='package', is_active=True).order_by('display_order')[:3]
+    
+    context = {
+        'featured_services': featured_services,
+    }
+    return render(request, 'bookings/home.html', context)
 
 
 def contact(request):

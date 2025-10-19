@@ -75,77 +75,35 @@
     </div>
     
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem;">
-        <!-- Basic Wash -->
+        {% for service in featured_services %}
         <div class="card" style="padding: 2rem; display: flex; flex-direction: column;">
             <div style="width: 50px; height: 50px; background: #eff6ff; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem;">
-                <i class="fas fa-droplet" style="font-size: 1.25rem; color: #3b82f6;"></i>
+                <i class="fas {{ service.icon }}" style="font-size: 1.25rem; color: #3b82f6;"></i>
             </div>
-            <h3 style="color: #111827; margin-bottom: 0.5rem; font-weight: 600;">Basic Wash</h3>
-            <p style="color: #6b7280; margin-bottom: 1rem;">Exterior wash and dry</p>
+            <h3 style="color: #111827; margin-bottom: 0.5rem; font-weight: 600;">{{ service.name }}</h3>
+            <p style="color: #6b7280; margin-bottom: 1rem;">{{ service.description }}</p>
             <div style="margin: 1.5rem 0;">
-                <span style="font-size: 2.5rem; font-weight: bold; color: #111827;">₱25</span>
-                <span style="color: #6b7280; margin-left: 0.5rem;">30 min</span>
+                <span style="font-size: 2.5rem; font-weight: bold; color: #111827;">₱{{ service.price }}</span>
+                <span style="color: #6b7280; margin-left: 0.5rem;">{{ service.get_duration_display }}</span>
             </div>
+            {% if service.features %}
             <ul style="list-style: none; padding: 0; margin-bottom: 1.5rem; flex-grow: 1;">
-                <li style="color: #6b7280; margin-bottom: 0.5rem;"><i class="fas fa-check" style="color: #10b981; margin-right: 0.5rem;"></i>Exterior wash</li>
-                <li style="color: #6b7280; margin-bottom: 0.5rem;"><i class="fas fa-check" style="color: #10b981; margin-right: 0.5rem;"></i>Hand dry</li>
-                <li style="color: #6b7280; margin-bottom: 0.5rem;"><i class="fas fa-check" style="color: #10b981; margin-right: 0.5rem;"></i>Tire shine</li>
+                {% for feature in service.get_features_list %}
+                <li style="color: #6b7280; margin-bottom: 0.5rem;"><i class="fas fa-check" style="color: #10b981; margin-right: 0.5rem;"></i>{{ feature }}</li>
+                {% endfor %}
             </ul>
+            {% endif %}
             {% if user.is_authenticated %}
-                <a href="{% url 'create_booking' %}" class="btn btn-primary" style="width: 100%; margin-top: auto;">Book Now</a>
+                <a href="{% url 'create_booking' %}?service={{ service.id }}" class="btn btn-primary" style="width: 100%; margin-top: auto;">Book Now</a>
             {% else %}
                 <a href="{% url 'register' %}" class="btn btn-primary" style="width: 100%; margin-top: auto;">Book Now</a>
             {% endif %}
         </div>
-        
-        <!-- Deluxe Wash -->
-        <div class="card" style="padding: 2rem; display: flex; flex-direction: column;">
-            <div style="width: 50px; height: 50px; background: #eff6ff; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem;">
-                <i class="fas fa-spray-can" style="font-size: 1.25rem; color: #3b82f6;"></i>
-            </div>
-            <h3 style="color: #111827; margin-bottom: 0.5rem; font-weight: 600;">Deluxe Wash</h3>
-            <p style="color: #6b7280; margin-bottom: 1rem;">Complete exterior care</p>
-            <div style="margin: 1.5rem 0;">
-                <span style="font-size: 2.5rem; font-weight: bold; color: #111827;">₱45</span>
-                <span style="color: #6b7280; margin-left: 0.5rem;">60 min</span>
-            </div>
-            <ul style="list-style: none; padding: 0; margin-bottom: 1.5rem; flex-grow: 1;">
-                <li style="color: #6b7280; margin-bottom: 0.5rem;"><i class="fas fa-check" style="color: #10b981; margin-right: 0.5rem;"></i>Everything in Basic</li>
-                <li style="color: #6b7280; margin-bottom: 0.5rem;"><i class="fas fa-check" style="color: #10b981; margin-right: 0.5rem;"></i>Wheel cleaning</li>
-                <li style="color: #6b7280; margin-bottom: 0.5rem;"><i class="fas fa-check" style="color: #10b981; margin-right: 0.5rem;"></i>Window polish</li>
-                <li style="color: #6b7280; margin-bottom: 0.5rem;"><i class="fas fa-check" style="color: #10b981; margin-right: 0.5rem;"></i>Wax application</li>
-            </ul>
-            {% if user.is_authenticated %}
-                <a href="{% url 'create_booking' %}" class="btn btn-primary" style="width: 100%; margin-top: auto;">Book Now</a>
-            {% else %}
-                <a href="{% url 'register' %}" class="btn btn-primary" style="width: 100%; margin-top: auto;">Book Now</a>
-            {% endif %}
+        {% empty %}
+        <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: #6b7280;">
+            <p>Services coming soon! Please check back later.</p>
         </div>
-        
-        <!-- Premium Detail -->
-        <div class="card" style="padding: 2rem; display: flex; flex-direction: column;">
-            <div style="width: 50px; height: 50px; background: #eff6ff; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem;">
-                <i class="fas fa-star" style="font-size: 1.25rem; color: #3b82f6;"></i>
-            </div>
-            <h3 style="color: #111827; margin-bottom: 0.5rem; font-weight: 600;">Premium Detail</h3>
-            <p style="color: #6b7280; margin-bottom: 1rem;">Full interior & exterior</p>
-            <div style="margin: 1.5rem 0;">
-                <span style="font-size: 2.5rem; font-weight: bold; color: #111827;">₱85</span>
-                <span style="color: #6b7280; margin-left: 0.5rem;">120 min</span>
-            </div>
-            <ul style="list-style: none; padding: 0; margin-bottom: 1.5rem; flex-grow: 1;">
-                <li style="color: #6b7280; margin-bottom: 0.5rem;"><i class="fas fa-check" style="color: #10b981; margin-right: 0.5rem;"></i>Everything in Deluxe</li>
-                <li style="color: #6b7280; margin-bottom: 0.5rem;"><i class="fas fa-check" style="color: #10b981; margin-right: 0.5rem;"></i>Interior vacuum</li>
-                <li style="color: #6b7280; margin-bottom: 0.5rem;"><i class="fas fa-check" style="color: #10b981; margin-right: 0.5rem;"></i>Dashboard polish</li>
-                <li style="color: #6b7280; margin-bottom: 0.5rem;"><i class="fas fa-check" style="color: #10b981; margin-right: 0.5rem;"></i>Leather treatment</li>
-            </ul>
-            {% if user.is_authenticated %}
-                <a href="{% url 'create_booking' %}" class="btn btn-primary" style="width: 100%; margin-top: auto;">Book Now</a>
-            {% else %}
-                <a href="{% url 'register' %}" class="btn btn-primary" style="width: 100%; margin-top: auto;">Book Now</a>
-            {% endif %}
-        </div>
-        
+        {% endfor %}
     </div>
 </div>
 
