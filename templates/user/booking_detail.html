@@ -17,7 +17,23 @@
     </div>
 </div>
 {% else %}
-{{ block.super }}
+<!-- User Navigation -->
+<div style="background: #ffffff; border-bottom: 1px solid #e5e7eb; padding: 1rem 2rem;">
+    <div style="max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center;">
+        <div style="font-size: 1.125rem; font-weight: 600; color: #111827;">Car Wash System</div>
+        <div style="display: flex; align-items: center; gap: 2rem;">
+            <a href="{% url 'user_dashboard' %}" style="color: #6b7280; text-decoration: none; font-size: 0.875rem;">Dashboard</a>
+            <a href="{% url 'user_services' %}" style="color: #6b7280; text-decoration: none; font-size: 0.875rem;">Services</a>
+            <a href="{% url 'user_bookings' %}" style="color: #6b7280; text-decoration: none; font-size: 0.875rem;">Bookings</a>
+            <div style="display: flex; align-items: center; gap: 1rem; margin-left: 1rem; padding-left: 2rem; border-left: 1px solid #e5e7eb;">
+                <span style="color: #6b7280; font-size: 0.875rem;">{{ user.username }}</span>
+                <a href="{% url 'logout' %}" style="color: #6b7280; text-decoration: none;" title="Logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
 {% endif %}
 {% endblock %}
 
