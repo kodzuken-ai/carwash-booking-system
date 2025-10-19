@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block title %}Booking #{{ booking.id }} - Car Wash System{% endblock %}
+
+{% block navigation %}
+<!-- Top Navigation Bar -->
+<div style="background: #ffffff; border-bottom: 1px solid #e5e7eb; padding: 1rem 2rem;">
+    <div style="max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center;">
+        <div style="font-size: 1.125rem; font-weight: 600; color: #111827;">Car Wash System</div>
+        <div style="display: flex; align-items: center; gap: 2rem;">
+            {% if user.profile.role == 'admin' %}
+                <a href="{% url 'admin_dashboard' %}" style="color: #6b7280; text-decoration: none; font-size: 0.875rem;">Admin Dashboard</a>
+            {% else %}
+                <a href="{% url 'user_dashboard' %}" style="color: #6b7280; text-decoration: none; font-size: 0.875rem;">Dashboard</a>
+                <a href="{% url 'user_services' %}" style="color: #6b7280; text-decoration: none; font-size: 0.875rem;">Services</a>
+                <a href="{% url 'user_bookings' %}" style="color: #6b7280; text-decoration: none; font-size: 0.875rem;">Bookings</a>
+            {% endif %}
+            <div style="display: flex; align-items: center; gap: 1rem; margin-left: 1rem; padding-left: 2rem; border-left: 1px solid #e5e7eb;">
+                <span style="color: #6b7280; font-size: 0.875rem;">{{ user.username }}</span>
+                <a href="{% url 'logout' %}" style="color: #6b7280; text-decoration: none;" title="Logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div style="max-width: 1400px; margin: 0 auto; padding: 2rem;">
+
+<!-- Back Button -->
+{% if user.profile.role == 'admin' %}
+    <a href="{% url 'admin_dashboard' %}" style="display: inline-flex; align-items: center; gap: 0.5rem; color: #6b7280; text-decoration: none; margin-bottom: 2rem; font-size: 0.875rem;">
+        <i class="fas fa-arrow-left"></i> Back to Admin Dashboard
+    </a>
+{% else %}
+    <a href="{% url 'user_bookings' %}" style="display: inline-flex; align-items: center; gap: 0.5rem; color: #6b7280; text-decoration: none; margin-bottom: 2rem; font-size: 0.875rem;">
+        <i class="fas fa-arrow-left"></i> Back to Bookings
+    </a>
+{% endif %}
+
+<div style="background: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 2rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h1 style="font-size: 1.75rem; font-weight: 700; color: #111827; margin: 0;">Booking #{{ booking.id }}</h1>
+        <span class="badge badge-{{ booking.status }}" style="font-size: 0.875rem; padding: 0.5rem 1rem; border-radius: 6px;">
+            {{ booking.get_status_display }}
+        </span>
+    </div>
+    
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+        <!-- Customer Information -->
+        <div style="padding: 1.5rem; background: #f9fafb; border-radius: 8px;">
+            <h3 style="color: #111827; font-size: 1.125rem; font-weight: 600; margin-bottom: 1rem;">Customer Information</h3>
+            <p style="margin-bottom: 0.75rem; color: #6b7280;"><strong style="color: #111827;">Name:</strong> {{ booking.customer_name }}</p>
+            <p style="margin-bottom: 0.75rem; color: #6b7280;"><strong style="color: #111827;">Email:</strong> {{ booking.customer_email }}</p>
+            <p style="margin-bottom: 0; color: #6b7280;"><strong style="color: #111827;">Phone:</strong> {{ booking.customer_phone }}</p>
+        </div>
+        
+        <!-- Vehicle Information -->
+        <div style="padding: 1.5rem; background: #f9fafb; border-radius: 8px;">
+            <h3 style="color: #111827; font-size: 1.125rem; font-weight: 600; margin-bottom: 1rem;">Vehicle Information</h3>
+            <p style="margin-bottom: 0.75rem; color: #6b7280;"><strong style="color: #111827;">Type:</strong> {{ booking.get_vehicle_type_display }}</p>
+            <p style="margin-bottom: 0; color: #6b7280;"><strong style="color: #111827;">Plate:</strong> {{ booking.vehicle_plate }}</p>
+        </div>
+        
+        <!-- Service Details -->
+        <div style="padding: 1.5rem; background: #f9fafb; border-radius: 8px;">
+            <h3 style="color: #111827; font-size: 1.125rem; font-weight: 600; margin-bottom: 1rem;">Service Details</h3>
+            <p style="margin-bottom: 0.75rem; color: #6b7280;"><strong style="color: #111827;">Service:</strong> {{ booking.get_service_display }}</p>
+            <p style="margin-bottom: 0.75rem; color: #6b7280;"><strong style="color: #111827;">Date:</strong> {{ booking.booking_date|date:"M d, Y" }}</p>
+            <p style="margin-bottom: 0.75rem; color: #6b7280;"><strong style="color: #111827;">Time:</strong> {{ booking.booking_time|time:"h:i A" }}</p>
+            <p style="margin-bottom: 0; color: #6b7280;"><strong style="color: #111827;">Price:</strong> <span style="font-size: 1.25rem; font-weight: 700; color: #111827;">₱{{ booking.price }}</span></p>
+        </div>
+        
+        <!-- Additional Info -->
+        <div style="padding: 1.5rem; background: #f9fafb; border-radius: 8px;">
+            <h3 style="color: #111827; font-size: 1.125rem; font-weight: 600; margin-bottom: 1rem;">Booking Info</h3>
+            <p style="margin-bottom: 0; color: #6b7280; font-size: 0.875rem;"><strong style="color: #111827;">Created:</strong> {{ booking.created_at|date:"M d, Y h:i A" }}</p>
+        </div>
+    </div>
+    
+    {% if booking.notes %}
+    <div style="margin-top: 1.5rem; padding: 1.5rem; background: #fffbeb; border-left: 4px solid #f59e0b; border-radius: 8px;">
+        <h3 style="color: #111827; font-size: 1.125rem; font-weight: 600; margin-bottom: 1rem;">Additional Notes</h3>
+        <p style="color: #6b7280; margin: 0;">{{ booking.notes }}</p>
+    </div>
+    {% endif %}
+    
+    <!-- Actions (Only for regular users, not admins) -->
+    {% if booking.status == 'pending' and user.profile.role != 'admin' %}
+    <div style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid #e5e7eb;">
+        <a href="{% url 'delete_booking' booking.id %}" class="btn btn-danger" style="padding: 0.75rem 1.5rem;">
+            <i class="fas fa-times"></i> Cancel Booking
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+</div>
+{% endblock %}
+
+{% block footer %}{% endblock %}

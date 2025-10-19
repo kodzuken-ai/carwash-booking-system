@@ -1,0 +1,14 @@
+Django==5.0.6
+requests==2.31.0
+supabase>=2.22.0
+python-dotenv==1.0.0
+
+# Production server
+gunicorn==21.2.0
+
+# PostgreSQL database
+psycopg2-binary==2.9.9
+dj-database-url==2.1.0
+
+# Static files in production
+whitenoise==6.6.0

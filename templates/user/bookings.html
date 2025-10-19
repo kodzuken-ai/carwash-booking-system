@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+
+{% block title %}My Bookings - Car Wash System{% endblock %}
+
+{% block navigation %}
+<!-- Top Navigation Bar -->
+<div style="background: #ffffff; border-bottom: 1px solid #e5e7eb; padding: 1rem 2rem;">
+    <div style="max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center;">
+        <div style="font-size: 1.125rem; font-weight: 600; color: #111827;">Car Wash System</div>
+        <div style="display: flex; align-items: center; gap: 2rem;">
+            <a href="{% url 'user_dashboard' %}" style="color: #6b7280; text-decoration: none; font-size: 0.875rem;">Dashboard</a>
+            <a href="{% url 'user_services' %}" style="color: #6b7280; text-decoration: none; font-size: 0.875rem;">Services</a>
+            <a href="{% url 'user_bookings' %}" style="color: #111827; text-decoration: none; font-size: 0.875rem; font-weight: 500;">Bookings</a>
+            <div style="display: flex; align-items: center; gap: 1rem; margin-left: 1rem; padding-left: 2rem; border-left: 1px solid #e5e7eb;">
+                <span style="color: #6b7280; font-size: 0.875rem;">{{ user.username }}</span>
+                <a href="{% url 'logout' %}" style="color: #6b7280; text-decoration: none;" title="Logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div style="max-width: 1400px; margin: 0 auto; padding: 2rem;">
+
+<!-- Page Header -->
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem;">
+    <div>
+        <h1 style="font-size: 2rem; font-weight: 700; color: #111827; margin-bottom: 0.5rem;">My Bookings</h1>
+        <p style="color: #6b7280; font-size: 1rem;">View and manage all your appointments</p>
+    </div>
+    <a href="{% url 'user_services' %}" class="btn btn-primary" style="padding: 0.75rem 1.5rem;">
+        <i class="fas fa-plus"></i> New Booking
+    </a>
+</div>
+
+<!-- Bookings Table -->
+<div style="background: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 2rem;">
+    
+    <!-- Filters -->
+    <form method="get" style="margin-bottom: 2rem;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 1rem; align-items: end;">
+            <!-- Date Filter -->
+            <div>
+                <label style="display: block; margin-bottom: 0.5rem; color: #6b7280; font-size: 0.875rem; font-weight: 500;">Date</label>
+                <input type="date" name="date" value="{{ date_filter }}" 
+                       style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 0.875rem;">
+            </div>
+            
+            <!-- Service Filter -->
+            <div>
+                <label style="display: block; margin-bottom: 0.5rem; color: #6b7280; font-size: 0.875rem; font-weight: 500;">Service</label>
+                <select name="service" 
+                        style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 0.875rem; cursor: pointer;">
+                    <option value="">All Services</option>
+                    <option value="basic" {% if service_filter == 'basic' %}selected{% endif %}>Basic Wash</option>
+                    <option value="premium" {% if service_filter == 'premium' %}selected{% endif %}>Premium Wash</option>
+                    <option value="deluxe" {% if service_filter == 'deluxe' %}selected{% endif %}>Deluxe Wash</option>
+                    <option value="interior" {% if service_filter == 'interior' %}selected{% endif %}>Interior Cleaning</option>
+                    <option value="fulldetail" {% if service_filter == 'fulldetail' %}selected{% endif %}>Full Detail</option>
+                </select>
+            </div>
+            
+            <!-- Status Filter -->
+            <div>
+                <label style="display: block; margin-bottom: 0.5rem; color: #6b7280; font-size: 0.875rem; font-weight: 500;">Status</label>
+                <select name="status" 
+                        style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 0.875rem; cursor: pointer;">
+                    <option value="">All Status</option>
+                    <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+                    <option value="confirmed" {% if status_filter == 'confirmed' %}selected{% endif %}>Confirmed</option>
+                    <option value="in-progress" {% if status_filter == 'in-progress' %}selected{% endif %}>In Progress</option>
+                    <option value="completed" {% if status_filter == 'completed' %}selected{% endif %}>Completed</option>
+                    <option value="cancelled" {% if status_filter == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                </select>
+            </div>
+            
+            <!-- Filter Buttons -->
+            <div style="display: flex; gap: 0.5rem;">
+                <button type="submit" class="btn btn-primary" style="padding: 0.75rem 1rem; font-size: 0.875rem; white-space: nowrap;">
+                    <i class="fas fa-filter"></i> Filter
+                </button>
+                <a href="{% url 'user_bookings' %}" class="btn btn-secondary" style="padding: 0.75rem 1rem; font-size: 0.875rem; text-decoration: none; white-space: nowrap;">
+                    <i class="fas fa-times"></i> Clear
+                </a>
+            </div>
+        </div>
+    </form>
+    
+    {% if bookings %}
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: separate; border-spacing: 0;">
+                <thead>
+                    <tr style="border-bottom: 1px solid #e5e7eb;">
+                        <th style="padding: 1rem; text-align: left; font-weight: 500; color: #6b7280; font-size: 0.875rem;">Service</th>
+                        <th style="padding: 1rem; text-align: left; font-weight: 500; color: #6b7280; font-size: 0.875rem;">Date & Time</th>
+                        <th style="padding: 1rem; text-align: left; font-weight: 500; color: #6b7280; font-size: 0.875rem;">Vehicle</th>
+                        <th style="padding: 1rem; text-align: left; font-weight: 500; color: #6b7280; font-size: 0.875rem;">Price</th>
+                        <th style="padding: 1rem; text-align: left; font-weight: 500; color: #6b7280; font-size: 0.875rem;">Status</th>
+                        <th style="padding: 1rem; text-align: center; font-weight: 500; color: #6b7280; font-size: 0.875rem;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for booking in bookings %}
+                        <tr style="border-bottom: 1px solid #f3f4f6;">
+                            <td style="padding: 1rem; color: #111827; font-weight: 500;">{{ booking.get_service_display }}</td>
+                            <td style="padding: 1rem;">
+                                <div style="color: #111827;">{{ booking.booking_date|date:"M d, Y" }}</div>
+                                <div style="font-size: 0.875rem; color: #6b7280;">{{ booking.booking_time|time:"H:i" }}</div>
+                            </td>
+                            <td style="padding: 1rem;">
+                                <div style="color: #111827;">{{ booking.get_vehicle_type_display }}</div>
+                                <div style="font-size: 0.875rem; color: #6b7280;">{{ booking.vehicle_plate }}</div>
+                            </td>
+                            <td style="padding: 1rem; color: #111827; font-weight: 500;">₱{{ booking.price }}</td>
+                            <td style="padding: 1rem;">
+                                <span class="badge badge-{{ booking.status }}" style="padding: 0.375rem 0.75rem; border-radius: 6px; font-size: 0.875rem;">
+                                    {{ booking.get_status_display }}
+                                </span>
+                            </td>
+                            <td style="padding: 1rem; text-align: center;">
+                                <a href="{% url 'booking_detail' booking.id %}" style="color: #111827; text-decoration: none; font-size: 0.875rem; font-weight: 500;">
+                                    View <i class="fas fa-arrow-right"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div style="text-align: center; padding: 3rem; color: #6b7280;">
+            <i class="fas fa-calendar" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.3;"></i>
+            <p style="margin-bottom: 1rem;">No bookings yet.</p>
+            <a href="{% url 'user_services' %}" class="btn btn-primary">Browse Services</a>
+        </div>
+    {% endif %}
+    
+    <!-- Pagination (Always Visible) -->
+    <div style="display: flex; justify-content: center; align-items: center; gap: 0.5rem; margin-top: 2rem;">
+        {% if bookings.has_previous %}
+            <a href="?page=1" style="padding: 0.5rem 0.75rem; border: 1px solid #e5e7eb; border-radius: 6px; text-decoration: none; color: #111827;">First</a>
+            <a href="?page={{ bookings.previous_page_number }}" style="padding: 0.5rem 0.75rem; border: 1px solid #e5e7eb; border-radius: 6px; text-decoration: none; color: #111827;">Previous</a>
+        {% else %}
+            <span style="padding: 0.5rem 0.75rem; border: 1px solid #e5e7eb; border-radius: 6px; color: #cbd5e1; cursor: not-allowed;">First</span>
+            <span style="padding: 0.5rem 0.75rem; border: 1px solid #e5e7eb; border-radius: 6px; color: #cbd5e1; cursor: not-allowed;">Previous</span>
+        {% endif %}
+        
+        <span style="padding: 0.5rem 1rem; color: #6b7280;">
+            Page {{ bookings.number }} of {{ bookings.paginator.num_pages }}
+        </span>
+        
+        {% if bookings.has_next %}
+            <a href="?page={{ bookings.next_page_number }}" style="padding: 0.5rem 0.75rem; border: 1px solid #e5e7eb; border-radius: 6px; text-decoration: none; color: #111827;">Next</a>
+            <a href="?page={{ bookings.paginator.num_pages }}" style="padding: 0.5rem 0.75rem; border: 1px solid #e5e7eb; border-radius: 6px; text-decoration: none; color: #111827;">Last</a>
+        {% else %}
+            <span style="padding: 0.5rem 0.75rem; border: 1px solid #e5e7eb; border-radius: 6px; color: #cbd5e1; cursor: not-allowed;">Next</span>
+            <span style="padding: 0.5rem 0.75rem; border: 1px solid #e5e7eb; border-radius: 6px; color: #cbd5e1; cursor: not-allowed;">Last</span>
+        {% endif %}
+    </div>
+</div>
+
+</div>
+{% endblock %}
+
+{% block footer %}{% endblock %}

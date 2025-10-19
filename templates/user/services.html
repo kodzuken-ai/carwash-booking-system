@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+
+{% block title %}Services - Car Wash System{% endblock %}
+
+{% block navigation %}
+<!-- Top Navigation Bar -->
+<div style="background: #ffffff; border-bottom: 1px solid #e5e7eb; padding: 1rem 2rem;">
+    <div style="max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center;">
+        <div style="font-size: 1.125rem; font-weight: 600; color: #111827;">Car Wash System</div>
+        <div style="display: flex; align-items: center; gap: 2rem;">
+            <a href="{% url 'user_dashboard' %}" style="color: #6b7280; text-decoration: none; font-size: 0.875rem;">Dashboard</a>
+            <a href="{% url 'user_services' %}" style="color: #111827; text-decoration: none; font-size: 0.875rem; font-weight: 500;">Services</a>
+            <a href="{% url 'user_bookings' %}" style="color: #6b7280; text-decoration: none; font-size: 0.875rem;">Bookings</a>
+            <div style="display: flex; align-items: center; gap: 1rem; margin-left: 1rem; padding-left: 2rem; border-left: 1px solid #e5e7eb;">
+                <span style="color: #6b7280; font-size: 0.875rem;">{{ user.username }}</span>
+                <a href="{% url 'logout' %}" style="color: #6b7280; text-decoration: none;" title="Logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div style="max-width: 1400px; margin: 0 auto; padding: 2rem;">
+
+<!-- Page Header -->
+<div style="margin-bottom: 3rem;">
+    <h1 style="font-size: 2rem; font-weight: 700; color: #111827; margin-bottom: 0.5rem;">Our Services</h1>
+    <p style="color: #6b7280; font-size: 1rem;">Browse and book our premium car wash services</p>
+</div>
+
+<!-- Tab Navigation -->
+<div style="display: inline-flex; background: #f3f4f6; border-radius: 8px; padding: 0.25rem; margin-bottom: 3rem;">
+    <button onclick="showTab('packages')" id="packagesTab" style="padding: 0.75rem 2rem; background: #ffffff; border: none; border-radius: 6px; font-weight: 500; color: #111827; cursor: pointer; font-size: 0.875rem;">
+        Service Packages
+    </button>
+    <button onclick="showTab('individual')" id="individualTab" style="padding: 0.75rem 2rem; background: transparent; border: none; border-radius: 6px; font-weight: 500; color: #6b7280; cursor: pointer; font-size: 0.875rem;">
+        Individual Services
+    </button>
+</div>
+
+<!-- Service Packages Tab -->
+<div id="packagesSection" style="display: block;">
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+    
+    {% for service in packages %}
+    <div class="service-card" style="background: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 2rem; transition: all 0.3s; display: flex; flex-direction: column;">
+        <div style="width: 60px; height: 60px; background: #eff6ff; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem;">
+            <i class="fas {{ service.icon }}" style="font-size: 1.5rem; color: #3b82f6;"></i>
+        </div>
+        <h3 style="font-size: 1.25rem; font-weight: 600; color: #111827; margin-bottom: 0.5rem;">{{ service.name }}</h3>
+        <p style="color: #6b7280; margin-bottom: 1rem;">{{ service.description }}</p>
+        <div style="margin: 1.5rem 0;">
+            <span style="font-size: 2rem; font-weight: 700; color: #111827;">₱{{ service.price }}</span>
+            <span style="color: #6b7280; margin-left: 0.5rem;">• {{ service.get_duration_display }}</span>
+        </div>
+        {% if service.features %}
+        <ul style="list-style: none; padding: 0; margin-bottom: 1.5rem; flex-grow: 1;">
+            {% for feature in service.get_features_list %}
+            <li style="color: #6b7280; margin-bottom: 0.5rem;"><i class="fas fa-check" style="color: #10b981; margin-right: 0.5rem;"></i>{{ feature }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        <a href="{% url 'create_booking' %}?service={{ service.id }}" class="btn btn-primary" style="width: 100%; text-align: center; display: block; margin-top: auto;">Book Now</a>
+    </div>
+    {% empty %}
+    <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: #6b7280;">
+        <p>No service packages available at the moment.</p>
+    </div>
+    {% endfor %}
+    
+</div>
+</div>
+
+<!-- Individual Services Tab -->
+<div id="individualSection" style="display: none;">
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+    
+    {% for service in individual_services %}
+    <div class="service-card" style="background: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 1.5rem; transition: all 0.3s; display: flex; flex-direction: column;">
+        <div style="width: 50px; height: 50px; background: #eff6ff; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
+            <i class="fas {{ service.icon }}" style="font-size: 1.25rem; color: #3b82f6;"></i>
+        </div>
+        <h3 style="font-size: 1.125rem; font-weight: 600; color: #111827; margin-bottom: 0.5rem;">{{ service.name }}</h3>
+        <div style="margin: 1rem 0;">
+            <span style="font-size: 1.75rem; font-weight: 700; color: #111827;">₱{{ service.price }}</span>
+            <span style="color: #6b7280; margin-left: 0.5rem; font-size: 0.875rem;">• {{ service.get_duration_display }}</span>
+        </div>
+        <p style="color: #6b7280; font-size: 0.875rem; margin-bottom: 1rem; flex-grow: 1;">{{ service.description }}</p>
+        <a href="{% url 'create_booking' %}?service={{ service.id }}" class="btn btn-primary" style="width: 100%; text-align: center; display: block; padding: 0.75rem; font-size: 0.875rem; margin-top: auto;">Book Now</a>
+    </div>
+    {% empty %}
+    <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: #6b7280;">
+        <p>No individual services available at the moment.</p>
+    </div>
+    {% endfor %}
+
+</div>
+</div>
+
+</div>
+
+</div>
+
+<script>
+function showTab(tab) {
+    const packagesTab = document.getElementById('packagesTab');
+    const individualTab = document.getElementById('individualTab');
+    const packagesSection = document.getElementById('packagesSection');
+    const individualSection = document.getElementById('individualSection');
+    
+    if (tab === 'packages') {
+        packagesTab.style.background = '#ffffff';
+        packagesTab.style.color = '#111827';
+        individualTab.style.background = 'transparent';
+        individualTab.style.color = '#6b7280';
+        packagesSection.style.display = 'block';
+        individualSection.style.display = 'none';
+    } else {
+        individualTab.style.background = '#ffffff';
+        individualTab.style.color = '#111827';
+        packagesTab.style.background = 'transparent';
+        packagesTab.style.color = '#6b7280';
+        individualSection.style.display = 'block';
+        packagesSection.style.display = 'none';
+    }
+}
+
+// Hover effect for all service cards
+setTimeout(() => {
+    document.querySelectorAll('.service-card').forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.1)';
+            this.style.transform = 'translateY(-4px)';
+        });
+        card.addEventListener('mouseleave', function() {
+            this.style.boxShadow = '';
+            this.style.transform = '';
+        });
+    });
+}, 100);
+</script>
+{% endblock %}
+
+{% block footer %}{% endblock %}

@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ action }} Service - Car Wash System{% endblock %}
+
+{% block navigation %}
+<!-- Top Navigation Bar -->
+<div style="background: #ffffff; border-bottom: 1px solid #e5e7eb; padding: 1rem 2rem;">
+    <div style="max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center;">
+        <div style="font-size: 1.125rem; font-weight: 600; color: #111827;">Car Wash System</div>
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <span style="color: #6b7280; font-size: 0.875rem;">{{ user.username }}</span>
+            <a href="{% url 'logout' %}" style="color: #6b7280; text-decoration: none;" title="Logout">
+                <i class="fas fa-sign-out-alt"></i>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 2rem auto; padding: 0 2rem;">
+
+<!-- Back Button -->
+<a href="{% url 'admin_dashboard' %}" style="display: inline-flex; align-items: center; gap: 0.5rem; color: #6b7280; text-decoration: none; margin-bottom: 2rem; font-size: 0.875rem;">
+    <i class="fas fa-arrow-left"></i> Back to Dashboard
+</a>
+
+<!-- Form Card -->
+<div style="background: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 2rem;">
+    <h1 style="font-size: 1.5rem; font-weight: 700; color: #111827; margin-bottom: 2rem;">{{ action }} Service</h1>
+    
+    <form method="post">
+        {% csrf_token %}
+        
+        <!-- Service Name -->
+        <div style="margin-bottom: 1.5rem;">
+            <label style="display: block; margin-bottom: 0.5rem; color: #111827; font-weight: 500; font-size: 0.875rem;">Service Name *</label>
+            <input type="text" name="name" value="{{ service.name }}" required 
+                   style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 0.875rem;">
+        </div>
+        
+        <!-- Description -->
+        <div style="margin-bottom: 1.5rem;">
+            <label style="display: block; margin-bottom: 0.5rem; color: #111827; font-weight: 500; font-size: 0.875rem;">Description *</label>
+            <textarea name="description" rows="3" required 
+                      style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 0.875rem;">{{ service.description }}</textarea>
+        </div>
+        
+        <!-- Category and Price -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+            <div>
+                <label style="display: block; margin-bottom: 0.5rem; color: #111827; font-weight: 500; font-size: 0.875rem;">Category *</label>
+                <select name="category" required 
+                        style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 0.875rem;">
+                    <option value="package" {% if service.category == 'package' %}selected{% endif %}>Service Package</option>
+                    <option value="individual" {% if service.category == 'individual' %}selected{% endif %}>Individual Service</option>
+                </select>
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 0.5rem; color: #111827; font-weight: 500; font-size: 0.875rem;">Price (₱) *</label>
+                <input type="number" name="price" value="{{ service.price }}" step="0.01" required 
+                       style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 0.875rem;">
+            </div>
+        </div>
+        
+        <!-- Duration -->
+        <div style="margin-bottom: 1.5rem;">
+            <label style="display: block; margin-bottom: 0.5rem; color: #111827; font-weight: 500; font-size: 0.875rem;">Duration (minutes) *</label>
+            <input type="number" name="duration" value="{{ service.duration }}" required 
+                   style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 0.875rem;">
+        </div>
+        
+        <!-- Icon -->
+        <div style="margin-bottom: 1.5rem;">
+            <label style="display: block; margin-bottom: 0.5rem; color: #111827; font-weight: 500; font-size: 0.875rem;">Icon Class (FontAwesome)</label>
+            <input type="text" name="icon" value="{{ service.icon|default:'fa-car' }}" 
+                   placeholder="fa-car"
+                   style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 0.875rem;">
+            <p style="font-size: 0.75rem; color: #6b7280; margin-top: 0.25rem;">e.g., fa-car, fa-droplet, fa-sparkles</p>
+        </div>
+        
+        <!-- Features -->
+        <div style="margin-bottom: 1.5rem;">
+            <label style="display: block; margin-bottom: 0.5rem; color: #111827; font-weight: 500; font-size: 0.875rem;">Features (comma-separated)</label>
+            <textarea name="features" rows="3" 
+                      placeholder="Exterior wash, Interior vacuum, Tire shine"
+                      style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 0.875rem;">{{ service.features }}</textarea>
+        </div>
+        
+        <!-- Active Status -->
+        <div style="margin-bottom: 2rem;">
+            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                <input type="checkbox" name="is_active" {% if service.is_active or not service %}checked{% endif %} 
+                       style="width: 1rem; height: 1rem;">
+                <span style="color: #111827; font-weight: 500; font-size: 0.875rem;">Active (visible to customers)</span>
+            </label>
+        </div>
+        
+        <!-- Buttons -->
+        <div style="display: flex; gap: 1rem;">
+            <button type="submit" class="btn btn-primary" style="flex: 1; padding: 0.75rem; font-weight: 600;">
+                <i class="fas fa-save"></i> {{ action}} Service
+            </button>
+            <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary" style="flex: 1; padding: 0.75rem; text-align: center; text-decoration: none;">
+                Cancel
+            </a>
+        </div>
+    </form>
+</div>
+
+</div>
+{% endblock %}
+
+{% block footer %}{% endblock %}

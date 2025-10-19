@@ -1,0 +1,532 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard - Car Wash System{% endblock %}
+
+{% block navigation %}
+<!-- Top Navigation Bar -->
+<div style="background: #ffffff; border-bottom: 1px solid #e5e7eb; padding: 1rem 2rem;">
+    <div style="max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center;">
+        <div style="font-size: 1.125rem; font-weight: 600; color: #111827;">Car Wash System</div>
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <span style="color: #6b7280; font-size: 0.875rem;">{{ user.username }}</span>
+            <a href="{% url 'logout' %}" style="color: #6b7280; text-decoration: none;" title="Logout">
+                <i class="fas fa-sign-out-alt"></i>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div style="max-width: 1400px; margin: 0 auto; padding: 2rem;">
+
+
+<!-- Statistics Cards -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-bottom: 3rem;">
+    <!-- Total Bookings -->
+    <div style="background: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 1.5rem;">
+        <p style="color: #6b7280; font-size: 0.875rem; margin-bottom: 0.5rem;">Total Bookings</p>
+        <h2 style="font-size: 2rem; font-weight: 700; color: #111827; margin-bottom: 0.25rem;">{{ total_bookings }}</h2>
+        <p style="color: #6b7280; font-size: 0.75rem;">{{ confirmed_bookings }} confirmed</p>
+    </div>
+    
+    <!-- Completed -->
+    <div style="background: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 1.5rem;">
+        <p style="color: #6b7280; font-size: 0.875rem; margin-bottom: 0.5rem;">Completed</p>
+        <h2 style="font-size: 2rem; font-weight: 700; color: #111827; margin-bottom: 0.25rem;">{{ completed_bookings }}</h2>
+        <p style="color: #6b7280; font-size: 0.75rem;">Successfully completed</p>
+    </div>
+    
+    <!-- Revenue -->
+    <div style="background: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 1.5rem;">
+        <p style="color: #6b7280; font-size: 0.875rem; margin-bottom: 0.5rem;">Revenue</p>
+        <h2 style="font-size: 2rem; font-weight: 700; color: #111827; margin-bottom: 0.25rem;">₱{{ revenue }}</h2>
+        <p style="color: #6b7280; font-size: 0.75rem;">From completed bookings</p>
+    </div>
+    
+    <!-- Users -->
+    <div style="background: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 1.5rem;">
+        <p style="color: #6b7280; font-size: 0.875rem; margin-bottom: 0.5rem;">Users</p>
+        <h2 style="font-size: 2rem; font-weight: 700; color: #111827; margin-bottom: 0.25rem;">{{ total_users }}</h2>
+        <p style="color: #6b7280; font-size: 0.75rem;">Active customers</p>
+    </div>
+</div>
+
+<!-- Tab Navigation -->
+<div style="display: inline-flex; background: #f3f4f6; border-radius: 8px; padding: 0.25rem; margin-bottom: 2rem;">
+    <button onclick="showTab('bookings')" id="bookingsTab" style="padding: 0.5rem 1.5rem; background: #ffffff; border: none; border-radius: 6px; font-weight: 500; color: #111827; cursor: pointer; display: flex; align-items: center; gap: 0.5rem;">
+        <i class="fas fa-calendar"></i> Bookings
+    </button>
+    <button onclick="showTab('users')" id="usersTab" style="padding: 0.5rem 1.5rem; background: transparent; border: none; border-radius: 6px; font-weight: 500; color: #6b7280; cursor: pointer; display: flex; align-items: center; gap: 0.5rem;">
+        <i class="fas fa-users"></i> Users
+    </button>
+    <button onclick="showTab('services')" id="servicesTab" style="padding: 0.5rem 1.5rem; background: transparent; border: none; border-radius: 6px; font-weight: 500; color: #6b7280; cursor: pointer; display: flex; align-items: center; gap: 0.5rem;">
+        <i class="fas fa-car-wash"></i> Services
+    </button>
+</div>
+
+<!-- All Bookings Section -->
+<div id="bookingsSection" style="background: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 2rem;">
+    <div style="margin-bottom: 1.5rem;">
+        <h2 style="font-size: 1.25rem; font-weight: 600; color: #111827; margin-bottom: 0.25rem;">All Bookings</h2>
+        <p style="color: #6b7280; font-size: 0.875rem;">Manage car wash appointments</p>
+    </div>
+    
+    <!-- Booking Filters -->
+    <form method="get" style="margin-bottom: 1.5rem;">
+        <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap: 1rem; align-items: end;">
+            <!-- Search Bar -->
+            <div style="position: relative;">
+                <i class="fas fa-search" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: #9ca3af;"></i>
+                <input type="text" name="search" value="{{ search_query }}" 
+                       placeholder="Search customer, email, plate..." 
+                       style="width: 100%; padding: 0.75rem 1rem 0.75rem 3rem; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 0.875rem;">
+            </div>
+            
+            <!-- Date Filter -->
+            <div>
+                <input type="date" name="date" value="{{ date_filter }}" 
+                       style="width: 100%; padding: 0.75rem 1rem; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 0.875rem;">
+            </div>
+            
+            <!-- Service Filter -->
+            <div>
+                <select name="service" 
+                        style="width: 100%; padding: 0.75rem 1rem; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 0.875rem; cursor: pointer;">
+                    <option value="">All Services</option>
+                    <option value="basic" {% if service_filter == 'basic' %}selected{% endif %}>Basic Wash</option>
+                    <option value="premium" {% if service_filter == 'premium' %}selected{% endif %}>Premium Wash</option>
+                    <option value="deluxe" {% if service_filter == 'deluxe' %}selected{% endif %}>Deluxe Wash</option>
+                    <option value="interior" {% if service_filter == 'interior' %}selected{% endif %}>Interior Cleaning</option>
+                    <option value="fulldetail" {% if service_filter == 'fulldetail' %}selected{% endif %}>Full Detail</option>
+                </select>
+            </div>
+            
+            <!-- Status Filter -->
+            <div>
+                <select name="status" 
+                        style="width: 100%; padding: 0.75rem 1rem; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 0.875rem; cursor: pointer;">
+                    <option value="">All Status</option>
+                    <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+                    <option value="confirmed" {% if status_filter == 'confirmed' %}selected{% endif %}>Confirmed</option>
+                    <option value="in-progress" {% if status_filter == 'in-progress' %}selected{% endif %}>In Progress</option>
+                    <option value="completed" {% if status_filter == 'completed' %}selected{% endif %}>Completed</option>
+                    <option value="cancelled" {% if status_filter == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                </select>
+            </div>
+            
+            <!-- Filter Buttons -->
+            <div style="display: flex; gap: 0.5rem;">
+                <button type="submit" class="btn btn-primary" style="padding: 0.75rem 1rem; font-size: 0.875rem; white-space: nowrap;">
+                    <i class="fas fa-filter"></i> Apply
+                </button>
+                <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary" style="padding: 0.75rem 1rem; font-size: 0.875rem; text-decoration: none; white-space: nowrap;">
+                    <i class="fas fa-times"></i> Clear
+                </a>
+            </div>
+        </div>
+    </form>
+    
+    {% if bookings %}
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: separate; border-spacing: 0;">
+                <thead>
+                    <tr style="border-bottom: 1px solid #e5e7eb;">
+                        <th style="padding: 1rem; text-align: left; font-weight: 500; color: #6b7280; font-size: 0.875rem;">Customer</th>
+                        <th style="padding: 1rem; text-align: left; font-weight: 500; color: #6b7280; font-size: 0.875rem;">Date & Time</th>
+                        <th style="padding: 1rem; text-align: left; font-weight: 500; color: #6b7280; font-size: 0.875rem;">Service</th>
+                        <th style="padding: 1rem; text-align: left; font-weight: 500; color: #6b7280; font-size: 0.875rem;">Vehicle</th>
+                        <th style="padding: 1rem; text-align: left; font-weight: 500; color: #6b7280; font-size: 0.875rem;">Price</th>
+                        <th style="padding: 1rem; text-align: left; font-weight: 500; color: #6b7280; font-size: 0.875rem;">Status</th>
+                        <th style="padding: 1rem; text-align: center; font-weight: 500; color: #6b7280; font-size: 0.875rem;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for booking in bookings %}
+                        <tr style="border-bottom: 1px solid #f3f4f6;">
+                            <td style="padding: 1rem;">
+                                <div style="font-weight: 500; color: #111827;">{{ booking.customer_name }}</div>
+                                <div style="font-size: 0.875rem; color: #6b7280;">{{ booking.customer_email }}</div>
+                            </td>
+                            <td style="padding: 1rem;">
+                                <div style="color: #111827;">{{ booking.booking_date|date:"M d, Y" }}</div>
+                                <div style="font-size: 0.875rem; color: #6b7280;">{{ booking.booking_time|time:"H:i" }}</div>
+                            </td>
+                            <td style="padding: 1rem; color: #111827;">{{ booking.get_service_display }}</td>
+                            <td style="padding: 1rem;">
+                                <div style="color: #111827;">{{ booking.get_vehicle_type_display }}</div>
+                                <div style="font-size: 0.875rem; color: #6b7280;">{{ booking.vehicle_plate }}</div>
+                            </td>
+                            <td style="padding: 1rem; color: #111827; font-weight: 500;">₱{{ booking.price }}</td>
+                            <td style="padding: 1rem;">
+                                {% if booking.status == 'completed' or booking.status == 'cancelled' %}
+                                    <span class="badge badge-{{ booking.status }}" style="padding: 0.5rem 0.75rem; border-radius: 6px; font-size: 0.875rem;">
+                                        {{ booking.get_status_display }}
+                                    </span>
+                                {% else %}
+                                    <form method="post" action="{% url 'update_booking_status' booking.id %}" style="margin: 0;" id="statusForm{{ booking.id }}">
+                                        {% csrf_token %}
+                                        <select name="status" 
+                                                onchange="handleStatusChange(this)" 
+                                                data-booking-id="{{ booking.id }}"
+                                                data-old-status="{{ booking.status }}"
+                                                data-customer-name="{{ booking.customer_name|escapejs }}"
+                                                data-customer-email="{{ booking.customer_email|escapejs }}"
+                                                data-service="{{ booking.get_service_display|escapejs }}"
+                                                data-date="{{ booking.booking_date|date:'F d, Y' }}"
+                                                data-time="{{ booking.booking_time|time:'h:i A' }}"
+                                                data-vehicle="{{ booking.get_vehicle_type_display|escapejs }}"
+                                                data-plate="{{ booking.vehicle_plate|escapejs }}"
+                                                data-price="{{ booking.price }}" 
+                                                class="badge badge-{{ booking.status }}"
+                                                style="padding: 0.5rem 0.75rem; border-radius: 6px; font-size: 0.875rem; border: 1px solid #e5e7eb; cursor: pointer; font-weight: 500;">
+                                            {% if booking.status == 'pending' %}
+                                                <option value="pending" selected>Pending</option>
+                                                <option value="confirmed">Confirm</option>
+                                                <option value="cancelled">Cancel</option>
+                                            {% elif booking.status == 'confirmed' %}
+                                                <option value="confirmed" selected>Confirmed</option>
+                                                <option value="in-progress">Start Progress</option>
+                                                <option value="cancelled">Cancel</option>
+                                            {% elif booking.status == 'in-progress' %}
+                                                <option value="in-progress" selected>In Progress</option>
+                                                <option value="completed">Complete</option>
+                                                <option value="cancelled">Cancel</option>
+                                            {% endif %}
+                                        </select>
+                                    </form>
+                                {% endif %}
+                            </td>
+                            <td style="padding: 1rem; text-align: center;">
+                                <a href="{% url 'booking_detail' booking.id %}" 
+                                   style="color: #6b7280; text-decoration: none; font-size: 0.875rem;">
+                                    View <i class="fas fa-arrow-right"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p style="text-align: center; color: #94a3b8; padding: 2rem;">No bookings found.</p>
+    {% endif %}
+    
+    <!-- Bookings Pagination (Always Visible) -->
+    <div style="display: flex; justify-content: center; align-items: center; gap: 0.5rem; margin-top: 2rem;">
+        {% if bookings.has_previous %}
+            <a href="?bookings_page=1" style="padding: 0.5rem 0.75rem; border: 1px solid #e5e7eb; border-radius: 6px; text-decoration: none; color: #111827;">First</a>
+            <a href="?bookings_page={{ bookings.previous_page_number }}" style="padding: 0.5rem 0.75rem; border: 1px solid #e5e7eb; border-radius: 6px; text-decoration: none; color: #111827;">Previous</a>
+        {% else %}
+            <span style="padding: 0.5rem 0.75rem; border: 1px solid #e5e7eb; border-radius: 6px; color: #cbd5e1; cursor: not-allowed;">First</span>
+            <span style="padding: 0.5rem 0.75rem; border: 1px solid #e5e7eb; border-radius: 6px; color: #cbd5e1; cursor: not-allowed;">Previous</span>
+        {% endif %}
+        
+        <span style="padding: 0.5rem 1rem; color: #6b7280;">
+            Page {{ bookings.number }} of {{ bookings.paginator.num_pages }}
+        </span>
+        
+        {% if bookings.has_next %}
+            <a href="?bookings_page={{ bookings.next_page_number }}" style="padding: 0.5rem 0.75rem; border: 1px solid #e5e7eb; border-radius: 6px; text-decoration: none; color: #111827;">Next</a>
+            <a href="?bookings_page={{ bookings.paginator.num_pages }}" style="padding: 0.5rem 0.75rem; border: 1px solid #e5e7eb; border-radius: 6px; text-decoration: none; color: #111827;">Last</a>
+        {% else %}
+            <span style="padding: 0.5rem 0.75rem; border: 1px solid #e5e7eb; border-radius: 6px; color: #cbd5e1; cursor: not-allowed;">Next</span>
+            <span style="padding: 0.5rem 0.75rem; border: 1px solid #e5e7eb; border-radius: 6px; color: #cbd5e1; cursor: not-allowed;">Last</span>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Users Section -->
+<div id="usersSection" style="background: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 2rem; display: none;">
+    <div style="margin-bottom: 1.5rem;">
+        <h2 style="font-size: 1.25rem; font-weight: 600; color: #111827; margin-bottom: 0.25rem;">All Users</h2>
+        <p style="color: #6b7280; font-size: 0.875rem;">Manage system users</p>
+    </div>
+    
+    <!-- User Search Bar -->
+    <form method="get" style="margin-bottom: 1.5rem;">
+        <div style="position: relative; max-width: 400px;">
+            <i class="fas fa-search" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: #9ca3af;"></i>
+            <input type="text" name="user_search" value="{{ user_search }}" 
+                   placeholder="Search users by name or email..." 
+                   style="width: 100%; padding: 0.75rem 1rem 0.75rem 3rem; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 0.875rem;">
+        </div>
+    </form>
+    
+    {% if users %}
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: separate; border-spacing: 0;">
+                <thead>
+                    <tr style="border-bottom: 1px solid #e5e7eb;">
+                        <th style="padding: 1rem; text-align: left; font-weight: 500; color: #6b7280; font-size: 0.875rem;">User</th>
+                        <th style="padding: 1rem; text-align: left; font-weight: 500; color: #6b7280; font-size: 0.875rem;">Email</th>
+                        <th style="padding: 1rem; text-align: left; font-weight: 500; color: #6b7280; font-size: 0.875rem;">Role</th>
+                        <th style="padding: 1rem; text-align: left; font-weight: 500; color: #6b7280; font-size: 0.875rem;">Joined</th>
+                        <th style="padding: 1rem; text-align: left; font-weight: 500; color: #6b7280; font-size: 0.875rem;">Bookings</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                        <tr style="border-bottom: 1px solid #f3f4f6;">
+                            <td style="padding: 1rem;">
+                                <div style="font-weight: 500; color: #111827;">{{ user.first_name }} {{ user.last_name }}</div>
+                                <div style="font-size: 0.875rem; color: #6b7280;">@{{ user.username }}</div>
+                            </td>
+                            <td style="padding: 1rem; color: #111827;">{{ user.email }}</td>
+                            <td style="padding: 1rem;">
+                                <span class="badge badge-{% if user.profile.role == 'admin' %}confirmed{% else %}pending{% endif %}" style="padding: 0.375rem 0.75rem; border-radius: 6px; font-size: 0.875rem;">
+                                    {{ user.profile.role|capfirst }}
+                                </span>
+                            </td>
+                            <td style="padding: 1rem;">
+                                <div style="color: #111827;">{{ user.date_joined|date:"M d, Y" }}</div>
+                                <div style="font-size: 0.875rem; color: #6b7280;">{{ user.date_joined|timesince }} ago</div>
+                            </td>
+                            <td style="padding: 1rem; color: #111827; font-weight: 500;">{{ user.booking_count }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p style="text-align: center; color: #94a3b8; padding: 2rem;">No users found.</p>
+    {% endif %}
+    
+    <!-- Users Pagination (Always Visible) -->
+    <div style="display: flex; justify-content: center; align-items: center; gap: 0.5rem; margin-top: 2rem;">
+        {% if users.has_previous %}
+            <a href="?users_page=1{% if user_search %}&user_search={{ user_search }}{% endif %}" style="padding: 0.5rem 0.75rem; border: 1px solid #e5e7eb; border-radius: 6px; text-decoration: none; color: #111827;">First</a>
+            <a href="?users_page={{ users.previous_page_number }}{% if user_search %}&user_search={{ user_search }}{% endif %}" style="padding: 0.5rem 0.75rem; border: 1px solid #e5e7eb; border-radius: 6px; text-decoration: none; color: #111827;">Previous</a>
+        {% else %}
+            <span style="padding: 0.5rem 0.75rem; border: 1px solid #e5e7eb; border-radius: 6px; color: #cbd5e1; cursor: not-allowed;">First</span>
+            <span style="padding: 0.5rem 0.75rem; border: 1px solid #e5e7eb; border-radius: 6px; color: #cbd5e1; cursor: not-allowed;">Previous</span>
+        {% endif %}
+        
+        <span style="padding: 0.5rem 1rem; color: #6b7280;">
+            Page {{ users.number }} of {{ users.paginator.num_pages }}
+        </span>
+        
+        {% if users.has_next %}
+            <a href="?users_page={{ users.next_page_number }}{% if user_search %}&user_search={{ user_search }}{% endif %}" style="padding: 0.5rem 0.75rem; border: 1px solid #e5e7eb; border-radius: 6px; text-decoration: none; color: #111827;">Next</a>
+            <a href="?users_page={{ users.paginator.num_pages }}{% if user_search %}&user_search={{ user_search }}{% endif %}" style="padding: 0.5rem 0.75rem; border: 1px solid #e5e7eb; border-radius: 6px; text-decoration: none; color: #111827;">Last</a>
+        {% else %}
+            <span style="padding: 0.5rem 0.75rem; border: 1px solid #e5e7eb; border-radius: 6px; color: #cbd5e1; cursor: not-allowed;">Next</span>
+            <span style="padding: 0.5rem 0.75rem; border: 1px solid #e5e7eb; border-radius: 6px; color: #cbd5e1; cursor: not-allowed;">Last</span>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Services Section -->
+<div id="servicesSection" style="background: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 2rem; display: none;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <div>
+            <h2 style="font-size: 1.25rem; font-weight: 600; color: #111827; margin-bottom: 0.25rem;">All Services</h2>
+            <p style="color: #6b7280; font-size: 0.875rem;">Manage car wash services</p>
+        </div>
+        <a href="{% url 'create_service' %}" class="btn btn-primary" style="padding: 0.75rem 1.5rem; text-decoration: none;">
+            <i class="fas fa-plus"></i> Add Service
+        </a>
+    </div>
+    
+    {% if services %}
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: separate; border-spacing: 0;">
+                <thead>
+                    <tr style="border-bottom: 1px solid #e5e7eb;">
+                        <th style="padding: 1rem; text-align: left; font-weight: 500; color: #6b7280; font-size: 0.875rem;">Service Name</th>
+                        <th style="padding: 1rem; text-align: left; font-weight: 500; color: #6b7280; font-size: 0.875rem;">Category</th>
+                        <th style="padding: 1rem; text-align: left; font-weight: 500; color: #6b7280; font-size: 0.875rem;">Price</th>
+                        <th style="padding: 1rem; text-align: left; font-weight: 500; color: #6b7280; font-size: 0.875rem;">Duration</th>
+                        <th style="padding: 1rem; text-align: left; font-weight: 500; color: #6b7280; font-size: 0.875rem;">Status</th>
+                        <th style="padding: 1rem; text-align: center; font-weight: 500; color: #6b7280; font-size: 0.875rem;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for service in services %}
+                        <tr style="border-bottom: 1px solid #f3f4f6;">
+                            <td style="padding: 1rem;">
+                                <div style="font-weight: 500; color: #111827;">{{ service.name }}</div>
+                                <div style="font-size: 0.875rem; color: #6b7280;">{{ service.description|truncatewords:10 }}</div>
+                            </td>
+                            <td style="padding: 1rem;">
+                                <span class="badge badge-{% if service.category == 'package' %}confirmed{% else %}pending{% endif %}" style="padding: 0.375rem 0.75rem; border-radius: 6px; font-size: 0.875rem;">
+                                    {{ service.get_category_display }}
+                                </span>
+                            </td>
+                            <td style="padding: 1rem; color: #111827; font-weight: 500;">₱{{ service.price }}</td>
+                            <td style="padding: 1rem; color: #111827;">{{ service.get_duration_display }}</td>
+                            <td style="padding: 1rem;">
+                                <span class="badge badge-{% if service.is_active %}confirmed{% else %}cancelled{% endif %}" style="padding: 0.375rem 0.75rem; border-radius: 6px; font-size: 0.875rem;">
+                                    {% if service.is_active %}Active{% else %}Inactive{% endif %}
+                                </span>
+                            </td>
+                            <td style="padding: 1rem; text-align: center;">
+                                <div style="display: flex; gap: 0.5rem; justify-content: center;">
+                                    <a href="{% url 'edit_service' service.id %}" style="color: #3b82f6; text-decoration: none; font-size: 0.875rem;">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </a>
+                                    <a href="{% url 'delete_service' service.id %}" onclick="return confirm('Are you sure you want to delete this service?')" style="color: #ef4444; text-decoration: none; font-size: 0.875rem;">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p style="text-align: center; color: #94a3b8; padding: 2rem;">No services found.</p>
+    {% endif %}
+    
+    <!-- Services Pagination (Always Visible) -->
+    <div style="display: flex; justify-content: center; align-items: center; gap: 0.5rem; margin-top: 2rem;">
+        {% if services.has_previous %}
+            <a href="?services_page=1" style="padding: 0.5rem 0.75rem; border: 1px solid #e5e7eb; border-radius: 6px; text-decoration: none; color: #111827;">First</a>
+            <a href="?services_page={{ services.previous_page_number }}" style="padding: 0.5rem 0.75rem; border: 1px solid #e5e7eb; border-radius: 6px; text-decoration: none; color: #111827;">Previous</a>
+        {% else %}
+            <span style="padding: 0.5rem 0.75rem; border: 1px solid #e5e7eb; border-radius: 6px; color: #cbd5e1; cursor: not-allowed;">First</span>
+            <span style="padding: 0.5rem 0.75rem; border: 1px solid #e5e7eb; border-radius: 6px; color: #cbd5e1; cursor: not-allowed;">Previous</span>
+        {% endif %}
+        
+        <span style="padding: 0.5rem 1rem; color: #6b7280;">
+            Page {{ services.number }} of {{ services.paginator.num_pages }}
+        </span>
+        
+        {% if services.has_next %}
+            <a href="?services_page={{ services.next_page_number }}" style="padding: 0.5rem 0.75rem; border: 1px solid #e5e7eb; border-radius: 6px; text-decoration: none; color: #111827;">Next</a>
+            <a href="?services_page={{ services.paginator.num_pages }}" style="padding: 0.5rem 0.75rem; border: 1px solid #e5e7eb; border-radius: 6px; text-decoration: none; color: #111827;">Last</a>
+        {% else %}
+            <span style="padding: 0.5rem 0.75rem; border: 1px solid #e5e7eb; border-radius: 6px; color: #cbd5e1; cursor: not-allowed;">Next</span>
+            <span style="padding: 0.5rem 0.75rem; border: 1px solid #e5e7eb; border-radius: 6px; color: #cbd5e1; cursor: not-allowed;">Last</span>
+        {% endif %}
+    </div>
+</div>
+
+</div>
+
+<script>
+function showTab(tab) {
+    const bookingsTab = document.getElementById('bookingsTab');
+    const usersTab = document.getElementById('usersTab');
+    const servicesTab = document.getElementById('servicesTab');
+    const bookingsSection = document.getElementById('bookingsSection');
+    const usersSection = document.getElementById('usersSection');
+    const servicesSection = document.getElementById('servicesSection');
+    
+    if (tab === 'bookings') {
+        bookingsTab.style.background = '#ffffff';
+        bookingsTab.style.color = '#111827';
+        usersTab.style.background = 'transparent';
+        usersTab.style.color = '#6b7280';
+        servicesTab.style.background = 'transparent';
+        servicesTab.style.color = '#6b7280';
+        bookingsSection.style.display = 'block';
+        usersSection.style.display = 'none';
+        servicesSection.style.display = 'none';
+    } else if (tab === 'users') {
+        usersTab.style.background = '#ffffff';
+        usersTab.style.color = '#111827';
+        bookingsTab.style.background = 'transparent';
+        bookingsTab.style.color = '#6b7280';
+        servicesTab.style.background = 'transparent';
+        servicesTab.style.color = '#6b7280';
+        usersSection.style.display = 'block';
+        bookingsSection.style.display = 'none';
+        servicesSection.style.display = 'none';
+    } else if (tab === 'services') {
+        servicesTab.style.background = '#ffffff';
+        servicesTab.style.color = '#111827';
+        bookingsTab.style.background = 'transparent';
+        bookingsTab.style.color = '#6b7280';
+        usersTab.style.background = 'transparent';
+        usersTab.style.color = '#6b7280';
+        servicesSection.style.display = 'block';
+        bookingsSection.style.display = 'none';
+        usersSection.style.display = 'none';
+    }
+}
+
+function handleStatusChange(select) {
+    const oldStatus = select.getAttribute('data-old-status');
+    const newStatus = select.value;
+    const bookingId = select.getAttribute('data-booking-id');
+    
+    // Show loading (don't disable - disabled fields don't submit!)
+    select.style.opacity = '0.6';
+    select.style.cursor = 'wait';
+    select.style.pointerEvents = 'none';  // Prevent clicks without disabling
+    
+    // If changing to confirmed, send EmailJS
+    if (newStatus === 'confirmed' && oldStatus !== 'confirmed') {
+        const customerName = select.getAttribute('data-customer-name');
+        const customerEmail = select.getAttribute('data-customer-email');
+        const service = select.getAttribute('data-service');
+        const date = select.getAttribute('data-date');
+        const time = select.getAttribute('data-time');
+        const vehicleType = select.getAttribute('data-vehicle');
+        const plate = select.getAttribute('data-plate');
+        const price = select.getAttribute('data-price');
+        
+        sendConfirmationEmail(customerName, customerEmail, service, date, time, vehicleType, plate, price, bookingId);
+    } else {
+        // Submit form directly
+        document.getElementById('statusForm' + bookingId).submit();
+    }
+}
+
+function sendConfirmationEmail(customerName, customerEmail, service, date, time, vehicleType, plate, price, bookingId) {
+    // Send email via EmailJS
+    emailjs.send('{{ settings.EMAILJS_SERVICE_ID }}', '{{ settings.EMAILJS_TEMPLATE_ID }}', {
+        to_email: customerEmail,
+        customer_name: customerName,
+        service: service,
+        booking_date: date,
+        booking_time: time,
+        vehicle_type: vehicleType,
+        vehicle_plate: plate,
+        price: price,
+        location: 'Iligan City',
+        subject: 'Booking Confirmation - Car Wash Pro'
+    }).then(function(response) {
+        console.log('Email sent successfully!', response);
+        // Submit the form after email is sent
+        document.getElementById('statusForm' + bookingId).submit();
+    }, function(error) {
+        console.log('Email failed to send:', error);
+        // Submit the form anyway even if email fails
+        if(confirm('Email could not be sent. Continue with status update?')) {
+            document.getElementById('statusForm' + bookingId).submit();
+        }
+    });
+}
+
+// Detect active tab based on URL parameters on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    // Check for explicit tab parameter
+    const tabParam = urlParams.get('tab');
+    if (tabParam === 'services') {
+        showTab('services');
+    }
+    else if (tabParam === 'users') {
+        showTab('users');
+    }
+    // Check for users tab indicators
+    else if (urlParams.has('users_page') || urlParams.has('user_search')) {
+        showTab('users');
+    }
+    // Check for services tab indicators
+    else if (urlParams.has('services_page')) {
+        showTab('services');
+    }
+    // Default to bookings tab
+    else {
+        showTab('bookings');
+    }
+});
+</script>
+{% endblock %}
+
+{% block footer %}{% endblock %}
