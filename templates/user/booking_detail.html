@@ -3,34 +3,14 @@
 {% block title %}Booking #{{ booking.id }} - Car Wash System{% endblock %}
 
 {% block navigation %}
-<!-- Top Navigation Bar -->
-<div style="background: #ffffff; border-bottom: 1px solid #e5e7eb; padding: 1rem 2rem;">
-    <div style="max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center;">
-        <div style="font-size: 1.125rem; font-weight: 600; color: #111827;">Car Wash System</div>
-        <div style="display: flex; align-items: center; gap: 2rem;">
-            {% if user.profile.role == 'admin' %}
-                <a href="{% url 'admin_dashboard' %}" style="color: #6b7280; text-decoration: none; font-size: 0.875rem;">Admin Dashboard</a>
-            {% else %}
-                <a href="{% url 'user_dashboard' %}" style="color: #6b7280; text-decoration: none; font-size: 0.875rem;">Dashboard</a>
-                <a href="{% url 'user_services' %}" style="color: #6b7280; text-decoration: none; font-size: 0.875rem;">Services</a>
-                <a href="{% url 'user_bookings' %}" style="color: #6b7280; text-decoration: none; font-size: 0.875rem;">Bookings</a>
-            {% endif %}
-            <div style="display: flex; align-items: center; gap: 1rem; margin-left: 1rem; padding-left: 2rem; border-left: 1px solid #e5e7eb;">
-                <span style="color: #6b7280; font-size: 0.875rem;">{{ user.username }}</span>
-                <a href="{% url 'logout' %}" style="color: #6b7280; text-decoration: none;" title="Logout">
-                    <i class="fas fa-sign-out-alt"></i>
-                </a>
-            </div>
-        </div>
-    </div>
-</div>
+{{ block.super }}
 {% endblock %}
 
 {% block content %}
 <div style="max-width: 1400px; margin: 0 auto; padding: 2rem;">
 
 <!-- Back Button -->
-{% if user.profile.role == 'admin' %}
+{% if user.is_staff or user.is_superuser %}
     <a href="{% url 'admin_dashboard' %}" style="display: inline-flex; align-items: center; gap: 0.5rem; color: #6b7280; text-decoration: none; margin-bottom: 2rem; font-size: 0.875rem;">
         <i class="fas fa-arrow-left"></i> Back to Admin Dashboard
     </a>
@@ -88,7 +68,7 @@
     {% endif %}
     
     <!-- Actions (Only for regular users, not admins) -->
-    {% if booking.status == 'pending' and user.profile.role != 'admin' %}
+    {% if booking.status == 'pending' and not user.is_staff and not user.is_superuser %}
     <div style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid #e5e7eb;">
         <a href="{% url 'delete_booking' booking.id %}" class="btn btn-danger" style="padding: 0.75rem 1.5rem;">
             <i class="fas fa-times"></i> Cancel Booking
