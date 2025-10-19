@@ -3,6 +3,9 @@
 {% block title %}Services - Car Wash System{% endblock %}
 
 {% block navigation %}
+{% if user.is_staff or user.is_superuser %}
+    {{ block.super }}
+{% else %}
 <!-- Top Navigation Bar -->
 <div style="background: #ffffff; border-bottom: 1px solid #e5e7eb; padding: 1rem 2rem;">
     <div style="max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center;">
@@ -20,6 +23,7 @@
         </div>
     </div>
 </div>
+{% endif %}
 {% endblock %}
 
 {% block content %}

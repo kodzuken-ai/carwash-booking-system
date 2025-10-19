@@ -14,9 +14,18 @@ from .forms import BookingForm, BookingStatusForm
 
 # Helper function to check if user is admin
 def is_admin(user):
+    """Check if user is admin/staff - supports both Django staff and profile-based roles"""
+    if not user.is_authenticated:
+        return False
+    
+    # Check Django built-in staff/superuser status first
+    if user.is_staff or user.is_superuser:
+        return True
+    
+    # Fall back to profile role check for backward compatibility
     try:
-        return user.is_authenticated and user.profile.role == 'admin'
-    except UserProfile.DoesNotExist:
+        return user.profile.role == 'admin'
+    except (UserProfile.DoesNotExist, AttributeError):
         return False
 
 

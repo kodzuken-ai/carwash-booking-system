@@ -3,6 +3,9 @@
 {% block title %}My Bookings - Car Wash System{% endblock %}
 
 {% block navigation %}
+{% if user.is_staff or user.is_superuser %}
+    {{ block.super }}
+{% else %}
 <!-- Top Navigation Bar -->
 <div style="background: #ffffff; border-bottom: 1px solid #e5e7eb; padding: 1rem 2rem;">
     <div style="max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center;">
@@ -20,6 +23,7 @@
         </div>
     </div>
 </div>
+{% endif %}
 {% endblock %}
 
 {% block content %}
@@ -31,9 +35,11 @@
         <h1 style="font-size: 2rem; font-weight: 700; color: #111827; margin-bottom: 0.5rem;">My Bookings</h1>
         <p style="color: #6b7280; font-size: 1rem;">View and manage all your appointments</p>
     </div>
+    {% if not user.is_staff and not user.is_superuser %}
     <a href="{% url 'user_services' %}" class="btn btn-primary" style="padding: 0.75rem 1.5rem;">
         <i class="fas fa-plus"></i> New Booking
     </a>
+    {% endif %}
 </div>
 
 <!-- Bookings Table -->
