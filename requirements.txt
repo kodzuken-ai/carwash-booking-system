@@ -59,5 +59,6 @@ propcache==0.4.1
 typing-inspection==0.4.2
 six==1.17.0
 
-# WSGI Server
+# WSGI Server & Static Files
 gunicorn==23.0.0
+whitenoise==6.8.2
